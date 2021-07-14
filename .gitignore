@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Jungtaek
+*.swp
+.DS_Store
+__MACOSX/
+poor_lego.zip
