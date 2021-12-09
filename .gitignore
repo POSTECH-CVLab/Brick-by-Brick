@@ -132,4 +132,9 @@ dmypy.json
 *.swp
 .DS_Store
 __MACOSX/
-poor_lego.zip
+datasets/
+logs/
+results/
+models/
+Saved_Models/
+temp/
