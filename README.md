@@ -1,6 +1,7 @@
 # Brick-by-Brick: Combinatorial Construction with Deep Reinforcement Learning
 
-This is an official repository of the paper "Brick-by-Brick: Combinatorial Construction with Deep Reinforcement Learning", which has been presented at NeurIPS-2021.
+This is an official repository of the paper "[Brick-by-Brick: Combinatorial Construction with Deep Reinforcement Learning](https://proceedings.neurips.cc/paper/2021/hash/2d4027d6df9c0256b8d4474ce88f8c88-Abstract.html)", which has been presented at [NeurIPS-2021](https://neurips.cc/Conferences/2021).
+[arXiv version](https://arxiv.org/abs/2110.15481) is also available.
 
 It is still under construction.
 
