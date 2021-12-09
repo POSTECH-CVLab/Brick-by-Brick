@@ -11,6 +11,7 @@ These repositories are under the MIT license.
 
 * [OpenAI Gym](https://github.com/openai/gym)
 * [OpenAI baselines](https://github.com/openai/baselines)
+* [Geometric-Primitives](https://github.com/POSTECH-CVLab/Geometric-Primitives)
 
 ## Contact
 
