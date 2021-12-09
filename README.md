@@ -26,7 +26,7 @@ Note that Hyunsoo Chung and Jungtaek Kim equally contributed.
 ```
 @inproceedings{ChungH2021neurips,
     title={{Brick-by-Brick}: Combinatorial Construction with Deep Reinforcement Learning},
-    author={Chung, Hyunsoo and Kim, Jungtaek and Knyazev, Boris and Lee, Jinhwi and Taylor, Graham W. and Park, Jaesik and Cho, Minsu",
+    author={Chung, Hyunsoo and Kim, Jungtaek and Knyazev, Boris and Lee, Jinhwi and Taylor, Graham W. and Park, Jaesik and Cho, Minsu},
     booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
     volume={34},
     year={2021}
