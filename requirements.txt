@@ -1,4 +1,4 @@
 numpy
-tensorflow
-geometric_primitives
+tensorflow==2.5.0
+geometric_primitives==0.1.1
 matplotlib

@@ -145,7 +145,7 @@ def voxelize_rescale(arr):
     return voxel
 
 func_bottom_align = lambda x: bottom_align(x)
-func_rescale_and_align = lambdax : threshold_resize_bottom_align(x)
+func_rescale_and_align = lambda x: threshold_resize_bottom_align(x)
 
 Rescaled_X_train = np.array([func_rescale_and_align(img) for img in X_train[..., 0]])
 Voxel_X_train = np.array([voxelize_rescale_bottom_align(img) for img in X_train[..., 0]])

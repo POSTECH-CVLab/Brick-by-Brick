@@ -90,8 +90,8 @@ def train(args, extra_args):
 
     print('Training {} on {}:{} with arguments \n{}'.format(args.alg, env_type, env_id, alg_kwargs))
 
-    alg_kwargs.update(zip(['mask_model_load', 'mask_total_timesteps', 'mask_lr', 'mask_noptepochs', 'model_type'],
-                          (False, 4e4, 3e-5, 4, args.model_type)))
+    alg_kwargs.update(zip(['mask_model_load', 'mask_total_timesteps', 'mask_lr', 'mask_noptepochs'],
+                          (True, 1e5, 3e-5, 4)))
 
     model = learn(
         env=env,
@@ -100,6 +100,13 @@ def train(args, extra_args):
         total_timesteps=total_timesteps,
         **alg_kwargs
     )
+
+    # model = learn(
+    #     env=env,
+    #     seed=seed,
+    #     total_timesteps=total_timesteps,
+    #     **alg_kwargs
+    # )
 
     return model, env
 

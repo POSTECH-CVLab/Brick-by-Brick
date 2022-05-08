@@ -11,7 +11,6 @@ from geometric_primitives import bricks
 from geometric_primitives import utils_meshes
 
 import matplotlib.pyplot as plt
-#from mpl_toolkits.mplot3d import Axes3D
 
 from rules.rules_mnist import LIST_RULES_2_4
 
@@ -25,9 +24,15 @@ warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 voxel_width = 14
 voxel_dim = (14, 8, 14)
 
-class LegoEnv_Mnist(gym.Env):
-    def __init__(self, max_bricks = 500, class_to_build = 0, num_bricks_to_build = None,
-                 testing = False, target_class_conditioned = False, test_overfitting = True):
+class LegoEnvMNIST(gym.Env):
+    def __init__(self,
+        max_bricks = 500,
+        class_to_build = 0,
+        num_bricks_to_build = None,
+        testing = False,
+        target_class_conditioned = False,
+        test_overfitting = True
+    ):
         self.num_max_bricks = max_bricks
         self.num_bricks_to_build = num_bricks_to_build
         self.class_to_build = class_to_build
@@ -59,7 +64,7 @@ class LegoEnv_Mnist(gym.Env):
 
     def reset(self):
         self.target_voxel, self.target, self.target_num_brick, \
-        self.target_class = self.load_target_from_class(class_info=None)
+        self.target_class = self.load_target_from_class(class_info=self.class_to_build)
 
         self.target_embedding = self.target
 
@@ -92,7 +97,7 @@ class LegoEnv_Mnist(gym.Env):
         brick_.set_position([0, 0, 0])
         brick_.set_direction(0)
 
-        self.bricks_ = bricks.Bricks(self.num_max_bricks)
+        self.bricks_ = bricks.Bricks(self.num_max_bricks, '0')
         self.bricks_.add(brick_)
 
         init_node_coordinates = np.concatenate((brick_.get_position(), [brick_.get_direction()]))
@@ -110,7 +115,7 @@ class LegoEnv_Mnist(gym.Env):
         self.prev_abs_reward = np.sum(np.logical_and(self.brick_voxel, self.target_voxel))
         self.last_accum_reward = 0
 
-        X, A, _ = self.bricks_.get_graph()
+        X, A, _, _ = self.bricks_.get_graph()
 
         A += 1 * np.eye(A.shape[0], dtype=A.dtype)
 
@@ -146,7 +151,7 @@ class LegoEnv_Mnist(gym.Env):
         reward = self.calculate_reward()
         episode_reward = self.get_episode_reward()
 
-        X, A, _ = self.bricks_.get_graph()
+        X, A, _, _ = self.bricks_.get_graph()
 
         if np.sum(self.obs['node_mask']) >= self.target_num_brick[0] or A.shape[0] >= self.target_num_brick[0]:
             done = True
@@ -164,7 +169,7 @@ class LegoEnv_Mnist(gym.Env):
         return copy.deepcopy(self.obs)
 
     def _add_node_and_edge(self, pivot_fragment_index, relative_action):
-        X, A, _ = self.bricks_.get_graph()
+        X, A, _, _ = self.bricks_.get_graph()
 
         pivot_coordinate = X[pivot_fragment_index]
 
@@ -192,7 +197,7 @@ class LegoEnv_Mnist(gym.Env):
         return new_brick_coordinate
 
     def _update_graph(self, new_brick_coordinate):
-        X, A, _ = self.bricks_.get_graph()
+        X, A, _, _ = self.bricks_.get_graph()
 
         A += 1 * np.eye(A.shape[0], dtype=A.dtype)
 
@@ -233,20 +238,23 @@ class LegoEnv_Mnist(gym.Env):
         '''
         mnist_dataset : 14, 14
         '''
+
+        cur_path = os.path.join(str_path, 'class_{}'.format(class_info))
+
         if self.testing is False:
             cur_idx = np.random.randint(400) + 100
 
-            target_bricks = np.load(os.path.join(str_path, 'target_voxel_train/{:03d}.npy'.format(cur_idx)))
-            target_information = np.load(os.path.join(str_path, 'target_information_train/{:03d}.npy'.format(cur_idx)))
-            num_targets = np.load(os.path.join(str_path, 'target_num_brick_train/{:03d}.npy'.format(cur_idx)))
-            target_class = np.load(os.path.join(str_path, 'target_class_train/{:03d}.npy'.format(cur_idx)))
+            target_bricks = np.load(os.path.join(cur_path, 'target_voxel_train/{:03d}.npy'.format(cur_idx)))
+            target_information = np.load(os.path.join(cur_path, 'target_information_train/{:03d}.npy'.format(cur_idx)))
+            num_targets = np.load(os.path.join(cur_path, 'target_num_brick_train/{:03d}.npy'.format(cur_idx)))
+            target_class = np.load(os.path.join(cur_path, 'target_class_train/{:03d}.npy'.format(cur_idx)))
         else:
             cur_idx = np.random.randint(100)
 
-            target_bricks = np.load(os.path.join(str_path, 'target_voxel_train/{:03d}.npy'.format(cur_idx)))
-            target_information = np.load(os.path.join(str_path, 'target_information_train/{:03d}.npy'.format(cur_idx)))
-            num_targets = np.load(os.path.join(str_path, 'target_num_brick_train/{:03d}.npy'.format(cur_idx)))
-            target_class = np.load(os.path.join(str_path, 'target_class_train/{:03d}.npy'.format(cur_idx)))
+            target_bricks = np.load(os.path.join(cur_path, 'target_voxel_train/{:03d}.npy'.format(cur_idx)))
+            target_information = np.load(os.path.join(cur_path, 'target_information_train/{:03d}.npy'.format(cur_idx)))
+            num_targets = np.load(os.path.join(cur_path, 'target_num_brick_train/{:03d}.npy'.format(cur_idx)))
+            target_class = np.load(os.path.join(cur_path, 'target_class_train/{:03d}.npy'.format(cur_idx)))
 
             # target_bricks = np.load('../mnist_easy_dataset/target_voxel_test/{}.npy'.format(cur_idx))
             # target_information = np.load('../mnist_easy_dataset/target_information_test/{}.npy'.format(cur_idx))

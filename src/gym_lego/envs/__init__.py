@@ -1,6 +1,1 @@
-from gym_lego.envs.lego_env_mnist import LegoEnv_Mnist
-from gym_lego.envs.lego_env_mnist_no_mask import LegoEnv_Mnist_No_Mask
-#from gym_lego.envs.lego_env_artificial import LegoEnv_Artificial
-#from gym_lego.envs.lego_env_artificial_no_mask import LegoEnv_Artificial_No_Mask
-#from gym_lego.envs.lego_env_artificial_no_mask_supervised import LegoEnv_Artificial_No_Mask_Supervised
-#from gym_lego.envs.lego_env_modelnet_no_mask import LegoEnv_ModelNet_No_Mask
+from gym_lego.envs.lego_env_mnist import LegoEnvMNIST

@@ -13,8 +13,7 @@ class Init_FC(tf.keras.Model):
 
         self.fc1 = fc_relu(hidden_dim + target_dim, 'init_{}_fc1_{}'.format(layer_type, layer_num), hidden_dim, init_scale=np.sqrt(2))
 
-        # self.fc2 = fc_relu(hidden_dim + target_dim, 'init_{}_fc2_{}'.format(layer_type, layer_num), hidden_dim, init_scale=np.sqrt(2))
-        self.fc2 = fc(hidden_dim + target_dim, 'init_{}_fc2_{}'.format(layer_type, layer_num), hidden_dim, init_scale=np.sqrt(2))
+        self.fc2 = fc_relu(hidden_dim + target_dim, 'init_{}_fc2_{}'.format(layer_type, layer_num), hidden_dim, init_scale=np.sqrt(2))
 
     def call(self, init_feature, target_feature):
         inputs = init_feature
@@ -458,7 +457,7 @@ class PolicyWithValue_Lego_Mnist_MultiGNN(tf.Module):
 
         pivot_probs = tf.nn.softmax(masked_for_pivot_node_logits, axis=-1)
 
-        pivot_neglogp = pivot_cce(y_true=tf.one_hot(pivot_node_index, for_pivot_node_logits.shape[-1]), y_pred=pivot_probs)
+        pivot_neglogp = pivot_cce(y_true=tf.one_hot(pivot_node_index, for_pivot_node_logits.shape[-1]), y_pred=tf.expand_dims(pivot_probs, axis=1))
 
         node_latent_representation = []
 
@@ -487,7 +486,7 @@ class PolicyWithValue_Lego_Mnist_MultiGNN(tf.Module):
 
         probs = tf.nn.softmax(masked_action_logits, axis=-1)
 
-        neglogp = cce(y_true=tf.one_hot(action, pi.shape[-1]), y_pred=probs)
+        neglogp = cce(y_true=tf.one_hot(action, pi.shape[-1]), y_pred=tf.expand_dims(probs, axis=1))
 
         vf = tf.squeeze(self.value_fc(tf.concat([action_graph_feature, pivot_graph_feature, target_information], axis=-1)), axis=1)
 
