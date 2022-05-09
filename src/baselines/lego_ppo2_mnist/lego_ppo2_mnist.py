@@ -23,8 +23,9 @@ def constfn(val):
 import gym
 import gym_lego
 import os
-from geometric_primitives import brick
-from geometric_primitives import bricks
+
+import brick
+import bricks
 
 from baselines.common.models import register, lego_cnn_model, lego_mnist_cnn_model, lego_mnist_deep_cnn_model, build_impala_cnn
 

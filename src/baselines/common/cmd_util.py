@@ -161,7 +161,7 @@ def common_arg_parser():
     parser.add_argument('--log_path', help='Directory to save learning curve data.', default=None, type=str)
     parser.add_argument('--play', default=False, action='store_true')
 
-    parser.add_argument('--model_type', default='model_multignn', type=str)
+    parser.add_argument('--model_type', default='model', type=str)
 
     parser.add_argument('--env_name', default='heist', type=str)
     parser.add_argument('--monitor_filename', default='heist_sort_42', type=str)

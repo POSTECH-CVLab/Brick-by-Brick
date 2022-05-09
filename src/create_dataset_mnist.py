@@ -155,25 +155,24 @@ Voxel_Thresh_X_train = np.array([voxelize_rescale(img) for img in X_train[..., 0
 
 '''1./12/18 for orig'''
 num_target_ratio = 1.1
-# num_target_min = 14
 num_target_min = 14
 num_target_max = 20
 
 num_train_data = 500
 num_test_data = 100
 
-Temp_Rescale_X_train = [Rescaled_X_train[np.where(Y_train == i)][:1000, ...] for i in [0,1,2,4,6]]
-Temp_Rescale_X_test = [Rescaled_X_train[np.where(Y_train == i)][:1000, ...] for i in [7,9]]
+#Temp_Rescale_X_train = [Rescaled_X_train[np.where(Y_train == i)][:1000, ...] for i in [0,1,2,4,6]]
+#Temp_Rescale_X_test = [Rescaled_X_train[np.where(Y_train == i)][:1000, ...] for i in [7,9]]
 
-Temp_Voxel_X_train = [Voxel_X_train[np.where(Y_train == i)][:1000, ...] for i in [0,1,2,4,6]]
-Temp_Voxel_X_test = [Voxel_X_train[np.where(Y_train == i)][:1000, ...] for i in [7,9]]
+#Temp_Voxel_X_train = [Voxel_X_train[np.where(Y_train == i)][:1000, ...] for i in [0,1,2,4,6]]
+#Temp_Voxel_X_test = [Voxel_X_train[np.where(Y_train == i)][:1000, ...] for i in [7,9]]
 
 Bottom_Aligned_X_train = np.array([func_bottom_align(img) for img in X_train[..., 0]])
 num_target = np.array([int(np.sum(x) / 2 * num_target_ratio + 1) for x in Thresh_X_train])
 num_target_thesholded = num_target[(num_target_min < num_target) & (num_target < num_target_max)]
 
 train_class = [0]
-test_class = [7]
+test_class = [0]
 cur_class_idx = 0
 
 thresholded_Y = Y_train[(num_target_min < num_target) & (num_target < num_target_max)]

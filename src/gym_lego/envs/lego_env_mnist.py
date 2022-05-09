@@ -1,13 +1,13 @@
 import numpy as np
 import math
-import rules
 import copy
 import gym
 import os
 import tensorflow as tf
 
-from geometric_primitives import brick
-from geometric_primitives import bricks
+import brick
+import bricks
+
 from geometric_primitives import utils_meshes
 
 import matplotlib.pyplot as plt
@@ -26,12 +26,12 @@ voxel_dim = (14, 8, 14)
 
 class LegoEnvMNIST(gym.Env):
     def __init__(self,
-        max_bricks = 500,
-        class_to_build = 0,
-        num_bricks_to_build = None,
-        testing = False,
-        target_class_conditioned = False,
-        test_overfitting = True
+        max_bricks=500,
+        class_to_build=0,
+        num_bricks_to_build=None,
+        testing=False,
+        target_class_conditioned=False,
+        test_overfitting=True
     ):
         self.num_max_bricks = max_bricks
         self.num_bricks_to_build = num_bricks_to_build
@@ -97,7 +97,7 @@ class LegoEnvMNIST(gym.Env):
         brick_.set_position([0, 0, 0])
         brick_.set_direction(0)
 
-        self.bricks_ = bricks.Bricks(self.num_max_bricks, '0')
+        self.bricks_ = bricks.Bricks(self.num_max_bricks)
         self.bricks_.add(brick_)
 
         init_node_coordinates = np.concatenate((brick_.get_position(), [brick_.get_direction()]))
@@ -115,7 +115,7 @@ class LegoEnvMNIST(gym.Env):
         self.prev_abs_reward = np.sum(np.logical_and(self.brick_voxel, self.target_voxel))
         self.last_accum_reward = 0
 
-        X, A, _, _ = self.bricks_.get_graph()
+        X, A, _ = self.bricks_.get_graph()
 
         A += 1 * np.eye(A.shape[0], dtype=A.dtype)
 
@@ -151,7 +151,7 @@ class LegoEnvMNIST(gym.Env):
         reward = self.calculate_reward()
         episode_reward = self.get_episode_reward()
 
-        X, A, _, _ = self.bricks_.get_graph()
+        X, A, _ = self.bricks_.get_graph()
 
         if np.sum(self.obs['node_mask']) >= self.target_num_brick[0] or A.shape[0] >= self.target_num_brick[0]:
             done = True
@@ -169,7 +169,7 @@ class LegoEnvMNIST(gym.Env):
         return copy.deepcopy(self.obs)
 
     def _add_node_and_edge(self, pivot_fragment_index, relative_action):
-        X, A, _, _ = self.bricks_.get_graph()
+        X, A, _ = self.bricks_.get_graph()
 
         pivot_coordinate = X[pivot_fragment_index]
 
@@ -197,7 +197,7 @@ class LegoEnvMNIST(gym.Env):
         return new_brick_coordinate
 
     def _update_graph(self, new_brick_coordinate):
-        X, A, _, _ = self.bricks_.get_graph()
+        X, A, _ = self.bricks_.get_graph()
 
         A += 1 * np.eye(A.shape[0], dtype=A.dtype)
 
@@ -210,7 +210,7 @@ class LegoEnvMNIST(gym.Env):
 
         updated_node_attributes = np.zeros((self.max_node_num, 4), dtype=np.float32)
 
-        updated_edge_attributes = np.zeros(shape = (92, *A.shape), dtype=np.float32)
+#        updated_edge_attributes = np.zeros(shape = (92, *A.shape), dtype=np.float32)
 
         updated_available_actions = np.vstack([self.get_available_actions_2(pivot_candidate) for pivot_candidate in X])
 
