@@ -121,14 +121,15 @@ def build_env(args, testing):
     env_type, env_id = get_env_type(args)
 
     if env_type in {'atari', 'retro'}:
-        if alg == 'deepq':
-            env = make_env(env_id, env_type, seed=seed, wrapper_kwargs={'frame_stack': True})
-        elif alg == 'trpo_mpi':
-            env = make_env(env_id, env_type, seed=seed)
-        else:
-            frame_stack_size = 4
-            env = make_vec_env(env_id, env_type, nenv, seed, gamestate=args.gamestate, reward_scale=args.reward_scale)
-            env = VecFrameStack(env, frame_stack_size)
+        pass
+#        if alg == 'deepq':
+#            env = make_env(env_id, env_type, seed=seed, wrapper_kwargs={'frame_stack': True})
+#        elif alg == 'trpo_mpi':
+#            env = make_env(env_id, env_type, seed=seed)
+#        else:
+#            frame_stack_size = 4
+#            env = make_vec_env(env_id, env_type, nenv, seed, gamestate=args.gamestate, reward_scale=args.reward_scale)
+#            env = VecFrameStack(env, frame_stack_size)
 
     else:
         # flatten_dict_observations = alg not in {'her'}

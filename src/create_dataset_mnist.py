@@ -171,8 +171,8 @@ Bottom_Aligned_X_train = np.array([func_bottom_align(img) for img in X_train[...
 num_target = np.array([int(np.sum(x) / 2 * num_target_ratio + 1) for x in Thresh_X_train])
 num_target_thesholded = num_target[(num_target_min < num_target) & (num_target < num_target_max)]
 
-train_class = [0]
-test_class = [0]
+train_class = [6]
+test_class = [6]
 cur_class_idx = 0
 
 thresholded_Y = Y_train[(num_target_min < num_target) & (num_target < num_target_max)]

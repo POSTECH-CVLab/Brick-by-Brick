@@ -132,7 +132,8 @@ class Model(tf.Module):
 
             pivot_probs = tf.nn.softmax(masked_for_pivot_node_logits, axis=-1)
 
-            pivot_neglogp = tf.expand_dims(pivot_cce(y_true=tf.one_hot(pivot, for_pivot_node_logits.shape[-1]), y_pred=tf.expand_dims(pivot_probs, axis=1)), axis=-1)
+            pivot_neglogp = tf.expand_dims(pivot_cce(y_true=tf.one_hot(tf.squeeze(pivot, axis=1), for_pivot_node_logits.shape[-1]), y_pred=pivot_probs), axis=-1)
+#            pivot_neglogp = tf.expand_dims(pivot_cce(y_true=tf.one_hot(pivot, for_pivot_node_logits.shape[-1]), y_pred=tf.expand_dims(pivot_probs, axis=1)), axis=-1)
 
             pivot_a0 = for_pivot_node_logits - tf.reduce_max(for_pivot_node_logits, axis=-1, keepdims=True)
             pivot_ea0 = tf.exp(pivot_a0)
@@ -163,7 +164,8 @@ class Model(tf.Module):
 
             probs = tf.nn.softmax(masked_action_logits, axis=-1)
 
-            neglogpac = tf.expand_dims(cce(y_true=tf.one_hot(actions, pi.shape[-1]), y_pred=tf.expand_dims(probs, axis=1)), axis=-1)
+            neglogpac = tf.expand_dims(cce(y_true=tf.one_hot(tf.squeeze(actions, axis=1), pi.shape[-1]), y_pred=probs), axis=-1)
+#            neglogpac = tf.expand_dims(cce(y_true=tf.one_hot(actions, pi.shape[-1]), y_pred=tf.expand_dims(probs, axis=1)), axis=-1)
 
             # probs_mask_loss = tf.reduce_mean(tf.reduce_sum(tf.nn.softmax(pi, axis=-1) * per_pivot_available_actions, axis=-1))
 

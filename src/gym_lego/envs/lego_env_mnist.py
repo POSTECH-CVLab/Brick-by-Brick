@@ -5,13 +5,13 @@ import gym
 import os
 import tensorflow as tf
 
-import brick
-import bricks
-
+from geometric_primitives import brick
+from geometric_primitives import bricks
 from geometric_primitives import utils_meshes
 
 import matplotlib.pyplot as plt
 
+#from rules_mnist import LIST_RULES_2_4
 from rules.rules_mnist import LIST_RULES_2_4
 
 import constants
@@ -70,10 +70,9 @@ class LegoEnvMNIST(gym.Env):
 
         btv_index = np.min(np.where(np.sum(self.target_voxel, axis=(0,1)) > 0))
         btv = self.target_voxel[:,:,btv_index]
-        bottom_trans_pad = np.array(list(map(lambda i : (list(map(lambda j : np.sum(btv[i-1, j-1:j+2] +
-                                                                                    btv[i, j-1:j+2] +
-                                                                                    btv[i+1, j-1:j+2]), range(1, btv.shape[1]-1)))),
-                                            range(1, btv.shape[0]-1))))
+        bottom_trans_pad = np.array(list(map(lambda i: (list(map(lambda j: np.sum(btv[i-1, j-1:j+2] \
+            + btv[i, j-1:j+2] \
+            + btv[i+1, j-1:j+2]), range(1, btv.shape[1]-1)))), range(1, btv.shape[0]-1))))
 
         bottom_trans = np.zeros((btv.shape[0], btv.shape[1])).astype(bottom_trans_pad.dtype)
         bottom_trans[1:-1, 1:-1] = bottom_trans_pad
@@ -97,7 +96,7 @@ class LegoEnvMNIST(gym.Env):
         brick_.set_position([0, 0, 0])
         brick_.set_direction(0)
 
-        self.bricks_ = bricks.Bricks(self.num_max_bricks)
+        self.bricks_ = bricks.Bricks(self.num_max_bricks, '0')
         self.bricks_.add(brick_)
 
         init_node_coordinates = np.concatenate((brick_.get_position(), [brick_.get_direction()]))
@@ -107,7 +106,7 @@ class LegoEnvMNIST(gym.Env):
 
         node_mask = np.expand_dims(np.eye(self.max_node_num, dtype=np.float32)[0], axis=-1)
 
-        self.brick_voxel = np.zeros(shape = voxel_dim, dtype=np.int32)
+        self.brick_voxel = np.zeros(shape=voxel_dim, dtype=np.int32)
 
         self._occupy(init_node_coordinates, self.brick_voxel)
 
@@ -115,7 +114,7 @@ class LegoEnvMNIST(gym.Env):
         self.prev_abs_reward = np.sum(np.logical_and(self.brick_voxel, self.target_voxel))
         self.last_accum_reward = 0
 
-        X, A, _ = self.bricks_.get_graph()
+        X, A, _, _ = self.bricks_.get_graph()
 
         A += 1 * np.eye(A.shape[0], dtype=A.dtype)
 
@@ -133,9 +132,21 @@ class LegoEnvMNIST(gym.Env):
 
         current_pic = self._get_current_pic()
 
-        self.obs = dict(zip(['adjacency', 'node_attributes', 'node_mask', 'available_actions', 'target_information', 'edge_attributes', 'target_class', 'current_pic'],
-                            (adjacency_matrix.astype(np.float32), node_matrix.astype(np.float32), node_mask.astype(np.float32), available_actions_matrix.astype(np.float32),
-                             self.target_embedding, edge_attributes, self.target_class, current_pic)))
+        self.obs = dict(zip([
+            'adjacency', 'node_attributes', 'node_mask',
+            'available_actions', 'target_information',
+            'edge_attributes', 'target_class', 'current_pic'
+        ],
+        (
+            adjacency_matrix.astype(np.float32),
+            node_matrix.astype(np.float32),
+            node_mask.astype(np.float32),
+            available_actions_matrix.astype(np.float32),
+            self.target_embedding,
+            edge_attributes,
+            self.target_class,
+            current_pic
+        )))
 
         return self.get_state()
 
@@ -151,7 +162,7 @@ class LegoEnvMNIST(gym.Env):
         reward = self.calculate_reward()
         episode_reward = self.get_episode_reward()
 
-        X, A, _ = self.bricks_.get_graph()
+        X, A, _, _ = self.bricks_.get_graph()
 
         if np.sum(self.obs['node_mask']) >= self.target_num_brick[0] or A.shape[0] >= self.target_num_brick[0]:
             done = True
@@ -169,7 +180,7 @@ class LegoEnvMNIST(gym.Env):
         return copy.deepcopy(self.obs)
 
     def _add_node_and_edge(self, pivot_fragment_index, relative_action):
-        X, A, _ = self.bricks_.get_graph()
+        X, A, _, _ = self.bricks_.get_graph()
 
         pivot_coordinate = X[pivot_fragment_index]
 
@@ -197,18 +208,17 @@ class LegoEnvMNIST(gym.Env):
         return new_brick_coordinate
 
     def _update_graph(self, new_brick_coordinate):
-        X, A, _ = self.bricks_.get_graph()
-
+        X, A, _, _ = self.bricks_.get_graph()
         A += 1 * np.eye(A.shape[0], dtype=A.dtype)
 
-        A = A / np.sum(A, axis = 1)[:, np.newaxis]
+        A = A / np.sum(A, axis=1)[:, np.newaxis]
 
         self._occupy(new_brick_coordinate, self.brick_voxel)
 
-        # updated_node_attributes = self.obs['node_attributes']
-        # updated_node_attributes[(A.shape[0] - 1)] =  new_brick_coordinate
+        updated_node_attributes = self.obs['node_attributes']
+        updated_node_attributes[(A.shape[0] - 1)] = new_brick_coordinate
 
-        updated_node_attributes = np.zeros((self.max_node_num, 4), dtype=np.float32)
+#        updated_node_attributes = np.zeros((self.max_node_num, 4), dtype=np.float32)
 
 #        updated_edge_attributes = np.zeros(shape = (92, *A.shape), dtype=np.float32)
 
@@ -220,8 +230,10 @@ class LegoEnvMNIST(gym.Env):
         adjacency_matrix = np.zeros((self.max_node_num, self.max_node_num), dtype=A.dtype)
         adjacency_matrix[:A.shape[0],:A.shape[0]] = A
 
-        node_mask = np.expand_dims(np.concatenate([np.ones(A.shape[0], dtype=np.float32),
-                                                   np.zeros(self.max_node_num - A.shape[0], dtype=np.float32)], axis=-1), axis=-1)
+        node_mask = np.expand_dims(np.concatenate([
+            np.ones(A.shape[0], dtype=np.float32),
+            np.zeros(self.max_node_num - A.shape[0], dtype=np.float32)],
+            axis=-1), axis=-1)
 
         edge_attributes = np.zeros((self.max_node_num, self.max_node_num, 4)).astype(np.float32)
         displacement = X[np.newaxis, :] - X[:, np.newaxis]
@@ -230,9 +242,18 @@ class LegoEnvMNIST(gym.Env):
 
         current_pic = self._get_current_pic()
 
-        self.obs.update(zip(['adjacency', 'node_attributes', 'node_mask', 'available_actions', 'edge_attributes', 'current_pic'],
-                            (adjacency_matrix.astype(np.float32), updated_node_attributes.astype(np.float32),
-                             node_mask.astype(np.float32), available_actions_matrix.astype(np.float32), edge_attributes, current_pic)))
+        self.obs.update(zip([
+            'adjacency', 'node_attributes', 'node_mask',
+            'available_actions', 'edge_attributes', 'current_pic'
+        ],
+        (
+            adjacency_matrix.astype(np.float32),
+            updated_node_attributes.astype(np.float32),
+            node_mask.astype(np.float32),
+            available_actions_matrix.astype(np.float32),
+            edge_attributes,
+            current_pic
+        )))
 
     def load_target_from_class(self, class_info):
         '''
@@ -290,7 +311,7 @@ class LegoEnvMNIST(gym.Env):
         plt.show()
 
     def get_target_voxel(self, target_embedding):
-        target_brick_voxel = np.zeros(shape = voxel_dim, dtype = 'int')
+        target_brick_voxel = np.zeros(shape=voxel_dim, dtype='int')
 
         for new_coordinate in target_embedding:
             self._occupy(new_coordinate, target_brick_voxel)
@@ -313,7 +334,7 @@ class LegoEnvMNIST(gym.Env):
         self.prev_abs_reward = cur_abs_reward
 
         if abs_reward_change >= 4:
-            # return reward_change * self.target_num_brick
+#            return reward_change * self.target_num_brick
             return abs_reward_change / 8
         else:
             return -1.
@@ -381,19 +402,30 @@ class LegoEnvMNIST(gym.Env):
         return np.rot90((np.sum(self.brick_voxel, axis=1) > 0).astype(np.float32), 1)[..., np.newaxis]
 
 if __name__ == '__main__':
-    Benv = LegoEnvMnist()
+    Benv = LegoEnvMNIST()
 
     obs = Benv.reset()
+    print(obs)
+    print(Benv.prev_abs_reward)
+    Benv.step((0,0))
+    print(Benv.prev_abs_reward)
+    Benv.step((1,3))
+    print(Benv.prev_abs_reward)
 
-    # print(obs)
-    print('\n')
+#    print(obs)
+#    print('\n')
 
     Benv.render()
 
-    zero_obs, zero_reward, zero_done, zero_voxel = Benv.step(45)
+    ax = plt.figure().add_subplot(projection='3d')
+    ax.voxels(Benv.target_voxel, edgecolor='k')
+    ax.voxels(Benv.brick_voxel, edgecolor='k')
+    plt.show()
+
+#    zero_obs, zero_reward, zero_done, zero_voxel = Benv.step(45)
 
     # print(zero_obs)
-    print(zero_reward)
-    print('\n')
+#    print(zero_reward)
+#    print('\n')
 
-    Benv.render()
+#    Benv.render()

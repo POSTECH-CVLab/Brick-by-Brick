@@ -457,7 +457,8 @@ class PolicyWithValue_Lego_Mnist_MultiGNN(tf.Module):
 
         pivot_probs = tf.nn.softmax(masked_for_pivot_node_logits, axis=-1)
 
-        pivot_neglogp = pivot_cce(y_true=tf.one_hot(pivot_node_index, for_pivot_node_logits.shape[-1]), y_pred=tf.expand_dims(pivot_probs, axis=1))
+#        pivot_neglogp = pivot_cce(y_true=tf.one_hot(pivot_node_index, for_pivot_node_logits.shape[-1]), y_pred=tf.expand_dims(pivot_probs, axis=1))
+        pivot_neglogp = pivot_cce(y_true=tf.one_hot(tf.squeeze(pivot_node_index, axis=1), for_pivot_node_logits.shape[-1]), y_pred=pivot_probs)
 
         node_latent_representation = []
 
@@ -486,7 +487,8 @@ class PolicyWithValue_Lego_Mnist_MultiGNN(tf.Module):
 
         probs = tf.nn.softmax(masked_action_logits, axis=-1)
 
-        neglogp = cce(y_true=tf.one_hot(action, pi.shape[-1]), y_pred=tf.expand_dims(probs, axis=1))
+        neglogp = cce(y_true=tf.one_hot(tf.squeeze(action, axis=1), pi.shape[-1]), y_pred=probs)
+#        neglogp = cce(y_true=tf.one_hot(action, pi.shape[-1]), y_pred=tf.expand_dims(probs, axis=1))
 
         vf = tf.squeeze(self.value_fc(tf.concat([action_graph_feature, pivot_graph_feature, target_information], axis=-1)), axis=1)
 

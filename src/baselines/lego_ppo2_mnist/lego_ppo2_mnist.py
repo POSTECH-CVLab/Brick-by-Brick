@@ -24,8 +24,8 @@ import gym
 import gym_lego
 import os
 
-import brick
-import bricks
+#import brick
+#import bricks
 
 from baselines.common.models import register, lego_cnn_model, lego_mnist_cnn_model, lego_mnist_deep_cnn_model, build_impala_cnn
 
@@ -276,7 +276,7 @@ def learn(*, network, env, total_timesteps, eval_env = None, seed=None, nsteps=2
             logger.logkv("misc/explained_variance", float(ev))
             logger.logkv('eprew_stepwisemean', np.sum(rewards) / (np.sum(rewards > 0) + 1e-8))
             for i in range(len(class_rewards)):
-                logger.logkv('eprewmean_c{}'.format(class_idx[i][0][0]), np.sum(class_rewards[i]) / (np.sum(class_rewards[i] > 0) + 1e-8) )
+                logger.logkv('eprewmean_c{}'.format(class_idx[i][0][0]), np.sum(class_rewards[i]) / (np.sum(class_rewards[i] > 0) + 1e-8))
                 logger.logkv('eprewmax_c{}'.format(class_idx[i][0][0]), np.max(class_rewards[i]))
             # logger.logkv('eprewmax', np.max(ep_rewards))
             logger.logkv('eval_eprew_stepwisemean', np.sum(eval_rewards) / (np.sum(eval_rewards > 0) + 1e-8))
