@@ -154,10 +154,6 @@ Thresh_X_train = np.array([threshold_resize(img) for img in X_train[..., 0]])
 Voxel_Thresh_X_train = np.array([voxelize_rescale(img) for img in X_train[..., 0]])
 
 '''1./12/18 for orig'''
-num_target_ratio = 1.1
-num_target_min = 14
-num_target_max = 20
-
 num_train_data = 500
 num_test_data = 100
 
@@ -167,69 +163,80 @@ num_test_data = 100
 #Temp_Voxel_X_train = [Voxel_X_train[np.where(Y_train == i)][:1000, ...] for i in [0,1,2,4,6]]
 #Temp_Voxel_X_test = [Voxel_X_train[np.where(Y_train == i)][:1000, ...] for i in [7,9]]
 
-Bottom_Aligned_X_train = np.array([func_bottom_align(img) for img in X_train[..., 0]])
-num_target = np.array([int(np.sum(x) / 2 * num_target_ratio + 1) for x in Thresh_X_train])
-num_target_thesholded = num_target[(num_target_min < num_target) & (num_target < num_target_max)]
+#Bottom_Aligned_X_train = np.array([func_bottom_align(img) for img in X_train[..., 0]])
 
-train_class = [6]
-test_class = [6]
-cur_class_idx = 0
+for ind in range(0, 10):
+    print('class {}'.format(ind))
 
-thresholded_Y = Y_train[(num_target_min < num_target) & (num_target < num_target_max)]
-thresholded_X = Thresh_X_train[(num_target_min < num_target) & (num_target < num_target_max)]
-thresholded_X_train = [thresholded_X[np.where(thresholded_Y == i)][:num_train_data, ...] for i in train_class]
-thresholded_X_test = [thresholded_X[np.where(thresholded_Y == i)][:num_test_data, ...] for i in test_class]
-threshoided_Voxel = Voxel_Thresh_X_train[(num_target_min < num_target) & (num_target < num_target_max)]
-thresholded_Voxel_train = [threshoided_Voxel[np.where(thresholded_Y == i)][:num_train_data, ...] for i in train_class]
-thresholded_Voxel_test = [threshoided_Voxel[np.where(thresholded_Y == i)][:num_test_data, ...] for i in test_class]
-thresholded_num_target_train = [np.expand_dims(num_target_thesholded[np.where(thresholded_Y == i)][:num_train_data, ...], axis=-1) for i in train_class]
-thresholded_num_target_test = [np.expand_dims(num_target_thesholded[np.where(thresholded_Y == i)][:num_test_data, ...], axis=-1) for i in test_class]
+    num_target_ratio = 1.1
+    if ind == 1:
+        num_target_min = 11
+    else:
+        num_target_min = 14
+    num_target_max = 20
 
-thresholded_Y_train = [np.expand_dims(thresholded_Y[np.where(thresholded_Y == i)][:num_train_data, ...], axis=-1) for i in train_class]
-thresholded_Y_test = [np.expand_dims(thresholded_Y[np.where(thresholded_Y == i)][:num_test_data, ...], axis=-1) for i in test_class]
+    num_target = np.array([int(np.sum(x) / 2 * num_target_ratio + 1) for x in Thresh_X_train])
+    num_target_thesholded = num_target[(num_target_min < num_target) & (num_target < num_target_max)]
 
-print(np.max(num_target))
+    train_class = [ind]
+    test_class = [ind]
+    cur_class_idx = ind
 
-MNIST_3D_Target_Information_Train = np.vstack(thresholded_X_train)
-MNIST_3D_Target_Information_Test = np.vstack(thresholded_X_test)
-MNIST_3D_Target_Voxel_Train = np.vstack(thresholded_Voxel_train)
-MNIST_3D_Target_Voxel_Test = np.vstack(thresholded_Voxel_test)
-MNIST_3D_Target_Num_Bricks_Train = np.vstack(thresholded_num_target_train)
-MNIST_3D_Target_Num_Bricks_Test = np.vstack(thresholded_num_target_test)
+    thresholded_Y = Y_train[(num_target_min < num_target) & (num_target < num_target_max)]
+    thresholded_X = Thresh_X_train[(num_target_min < num_target) & (num_target < num_target_max)]
+    thresholded_X_train = [thresholded_X[np.where(thresholded_Y == i)][:num_train_data, ...] for i in train_class]
+    thresholded_X_test = [thresholded_X[np.where(thresholded_Y == i)][:num_test_data, ...] for i in test_class]
+    threshoided_Voxel = Voxel_Thresh_X_train[(num_target_min < num_target) & (num_target < num_target_max)]
+    thresholded_Voxel_train = [threshoided_Voxel[np.where(thresholded_Y == i)][:num_train_data, ...] for i in train_class]
+    thresholded_Voxel_test = [threshoided_Voxel[np.where(thresholded_Y == i)][:num_test_data, ...] for i in test_class]
+    thresholded_num_target_train = [np.expand_dims(num_target_thesholded[np.where(thresholded_Y == i)][:num_train_data, ...], axis=-1) for i in train_class]
+    thresholded_num_target_test = [np.expand_dims(num_target_thesholded[np.where(thresholded_Y == i)][:num_test_data, ...], axis=-1) for i in test_class]
 
-MNIST_3D_Target_Class_Train = np.vstack(thresholded_Y_train)
-MNIST_3D_Target_Class_Test = np.vstack(thresholded_Y_test)
+    thresholded_Y_train = [np.expand_dims(thresholded_Y[np.where(thresholded_Y == i)][:num_train_data, ...], axis=-1) for i in train_class]
+    thresholded_Y_test = [np.expand_dims(thresholded_Y[np.where(thresholded_Y == i)][:num_test_data, ...], axis=-1) for i in test_class]
 
-print(MNIST_3D_Target_Information_Train.shape, MNIST_3D_Target_Information_Test.shape)
+    print(np.max(num_target))
 
-train_inds = np.arange(MNIST_3D_Target_Information_Train.shape[0])
-test_inds = np.arange(MNIST_3D_Target_Information_Test.shape[0])
+    MNIST_3D_Target_Information_Train = np.vstack(thresholded_X_train)
+    MNIST_3D_Target_Information_Test = np.vstack(thresholded_X_test)
+    MNIST_3D_Target_Voxel_Train = np.vstack(thresholded_Voxel_train)
+    MNIST_3D_Target_Voxel_Test = np.vstack(thresholded_Voxel_test)
+    MNIST_3D_Target_Num_Bricks_Train = np.vstack(thresholded_num_target_train)
+    MNIST_3D_Target_Num_Bricks_Test = np.vstack(thresholded_num_target_test)
 
-np.random.shuffle(train_inds)
-np.random.shuffle(test_inds)
+    MNIST_3D_Target_Class_Train = np.vstack(thresholded_Y_train)
+    MNIST_3D_Target_Class_Test = np.vstack(thresholded_Y_test)
 
-MNIST_3D_Target_Information_Train = MNIST_3D_Target_Information_Train[train_inds].astype(np.int32)
-MNIST_3D_Target_Information_Test = MNIST_3D_Target_Information_Test[test_inds].astype(np.int32)
-MNIST_3D_Target_Voxel_Train = MNIST_3D_Target_Voxel_Train[train_inds].astype(np.int32)
-MNIST_3D_Target_Voxel_Test = MNIST_3D_Target_Voxel_Test[test_inds].astype(np.int32)
-MNIST_3D_Target_Num_Bricks_Train = MNIST_3D_Target_Num_Bricks_Train[train_inds].astype(np.int32)
-MNIST_3D_Target_Num_Bricks_Test = MNIST_3D_Target_Num_Bricks_Test[test_inds].astype(np.int32)
+    print(MNIST_3D_Target_Information_Train.shape, MNIST_3D_Target_Information_Test.shape)
 
-MNIST_3D_Target_Class_Train = MNIST_3D_Target_Class_Train[train_inds].astype(np.int32)
-MNIST_3D_Target_Class_Test = MNIST_3D_Target_Class_Test[test_inds].astype(np.int32)
+    train_inds = np.arange(MNIST_3D_Target_Information_Train.shape[0])
+    test_inds = np.arange(MNIST_3D_Target_Information_Test.shape[0])
 
-for i in range(MNIST_3D_Target_Information_Train.shape[0]):
-    if i % 200 == 0:
-        print('Train', i)
-    np.save(os.path.join(str_path, 'class_{}/target_information_train/{:03d}.npy'.format(cur_class_idx, i)), MNIST_3D_Target_Information_Train[i])
-    np.save(os.path.join(str_path, 'class_{}/target_voxel_train/{:03d}.npy'.format(cur_class_idx, i)), MNIST_3D_Target_Voxel_Train[i])
-    np.save(os.path.join(str_path, 'class_{}/target_num_brick_train/{:03d}.npy'.format(cur_class_idx, i)), MNIST_3D_Target_Num_Bricks_Train[i])
-    np.save(os.path.join(str_path, 'class_{}/target_class_train/{:03d}.npy'.format(cur_class_idx, i)), MNIST_3D_Target_Class_Train[i])
+    np.random.shuffle(train_inds)
+    np.random.shuffle(test_inds)
 
-for i in range(MNIST_3D_Target_Information_Test.shape[0]):
-    if i % 200 == 0:
-        print('Test', i)
-    np.save(os.path.join(str_path, 'class_{}/target_information_test/{:03d}.npy'.format(cur_class_idx, i)), MNIST_3D_Target_Information_Test[i])
-    np.save(os.path.join(str_path, 'class_{}/target_voxel_test/{:03d}.npy'.format(cur_class_idx, i)), MNIST_3D_Target_Voxel_Test[i])
-    np.save(os.path.join(str_path, 'class_{}/target_num_brick_test/{:03d}.npy'.format(cur_class_idx, i)), MNIST_3D_Target_Num_Bricks_Test[i])
-    np.save(os.path.join(str_path, 'class_{}/target_class_test/{:03d}.npy'.format(cur_class_idx, i)), MNIST_3D_Target_Class_Test[i])
+    MNIST_3D_Target_Information_Train = MNIST_3D_Target_Information_Train[train_inds].astype(np.int32)
+    MNIST_3D_Target_Information_Test = MNIST_3D_Target_Information_Test[test_inds].astype(np.int32)
+    MNIST_3D_Target_Voxel_Train = MNIST_3D_Target_Voxel_Train[train_inds].astype(np.int32)
+    MNIST_3D_Target_Voxel_Test = MNIST_3D_Target_Voxel_Test[test_inds].astype(np.int32)
+    MNIST_3D_Target_Num_Bricks_Train = MNIST_3D_Target_Num_Bricks_Train[train_inds].astype(np.int32)
+    MNIST_3D_Target_Num_Bricks_Test = MNIST_3D_Target_Num_Bricks_Test[test_inds].astype(np.int32)
+
+    MNIST_3D_Target_Class_Train = MNIST_3D_Target_Class_Train[train_inds].astype(np.int32)
+    MNIST_3D_Target_Class_Test = MNIST_3D_Target_Class_Test[test_inds].astype(np.int32)
+
+    for i in range(MNIST_3D_Target_Information_Train.shape[0]):
+        if i % 200 == 0:
+            print('Train', i)
+        np.save(os.path.join(str_path, 'class_{}/target_information_train/{:03d}.npy'.format(cur_class_idx, i)), MNIST_3D_Target_Information_Train[i])
+        np.save(os.path.join(str_path, 'class_{}/target_voxel_train/{:03d}.npy'.format(cur_class_idx, i)), MNIST_3D_Target_Voxel_Train[i])
+        np.save(os.path.join(str_path, 'class_{}/target_num_brick_train/{:03d}.npy'.format(cur_class_idx, i)), MNIST_3D_Target_Num_Bricks_Train[i])
+        np.save(os.path.join(str_path, 'class_{}/target_class_train/{:03d}.npy'.format(cur_class_idx, i)), MNIST_3D_Target_Class_Train[i])
+
+    for i in range(MNIST_3D_Target_Information_Test.shape[0]):
+        if i % 200 == 0:
+            print('Test', i)
+        np.save(os.path.join(str_path, 'class_{}/target_information_test/{:03d}.npy'.format(cur_class_idx, i)), MNIST_3D_Target_Information_Test[i])
+        np.save(os.path.join(str_path, 'class_{}/target_voxel_test/{:03d}.npy'.format(cur_class_idx, i)), MNIST_3D_Target_Voxel_Test[i])
+        np.save(os.path.join(str_path, 'class_{}/target_num_brick_test/{:03d}.npy'.format(cur_class_idx, i)), MNIST_3D_Target_Num_Bricks_Test[i])
+        np.save(os.path.join(str_path, 'class_{}/target_class_test/{:03d}.npy'.format(cur_class_idx, i)), MNIST_3D_Target_Class_Test[i])
